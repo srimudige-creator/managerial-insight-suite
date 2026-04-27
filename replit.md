@@ -25,3 +25,16 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+- **api-server** (`artifacts/api-server`) — Express API exposing `/api/*` endpoints for projects, members, issues, activities, and dashboard aggregates. Validated against the OpenAPI spec via Zod.
+- **command-center** (`artifacts/command-center`) — Manager Command Center web app at `/`. React + Vite, dark "morning briefing" theme, persistent sidebar layout. Pages: Dashboard, Projects, Project detail, Issues, Team, Activity log. Uses generated React Query hooks from `@workspace/api-client-react`.
+- **mockup-sandbox** (`artifacts/mockup-sandbox`) — Canvas previews (not currently in use).
+
+## Domain Model
+
+- **Project**: `name`, `client`, `description`, `status` (active|on_hold|completed), `color`
+- **Member**: `name`, `role`, `email`, `avatarColor`
+- **Issue**: `projectId`, `title`, `description`, `priority` (critical|high|medium|low), `status` (open|in_progress|blocked|resolved), `assigneeId`, `reportedBy`, `dueDate`
+- **Activity**: `projectId` (nullable), `category` (client_call|code_review|planning|one_on_one|support|deployment|documentation|other), `title`, `notes`, `durationMinutes`, `activityDate`

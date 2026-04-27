@@ -3,20 +3,23 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API specification for the Manager Command Center
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: dashboard
+  - name: projects
+  - name: members
+  - name: issues
+  - name: activities
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +27,411 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Top-line counts and aggregates for the manager dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/issue-priority-breakdown:
+    get:
+      operationId: getIssuePriorityBreakdown
+      tags: [dashboard]
+      summary: Counts of open issues grouped by priority
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PriorityBucket"
+
+  /dashboard/project-health:
+    get:
+      operationId: getProjectHealth
+      tags: [dashboard]
+      summary: Per-project counts of open vs resolved issues
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectHealth"
+
+  /dashboard/recent-activities:
+    get:
+      operationId: getRecentActivities
+      tags: [dashboard]
+      summary: Latest manager activities across all projects
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a single project
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List all team members
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      summary: Add a team member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /members/{id}:
+    patch:
+      operationId: updateMember
+      tags: [members]
+      summary: Update a team member
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+    delete:
+      operationId: deleteMember
+      tags: [members]
+      summary: Remove a team member
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /issues:
+    get:
+      operationId: listIssues
+      tags: [issues]
+      summary: List issues, optionally filtered
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/IssueStatus"
+        - in: query
+          name: priority
+          schema:
+            $ref: "#/components/schemas/IssuePriority"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Issue"
+    post:
+      operationId: createIssue
+      tags: [issues]
+      summary: Create an issue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIssueInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+
+  /issues/{id}:
+    get:
+      operationId: getIssue
+      tags: [issues]
+      summary: Get a single issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+    patch:
+      operationId: updateIssue
+      tags: [issues]
+      summary: Update an issue (priority, status, assignment, etc.)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIssueInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Issue"
+    delete:
+      operationId: deleteIssue
+      tags: [issues]
+      summary: Delete an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /activities:
+    get:
+      operationId: listActivities
+      tags: [activities]
+      summary: List daily activity log entries
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+            description: Filter activities to a specific YYYY-MM-DD date
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+    post:
+      operationId: createActivity
+      tags: [activities]
+      summary: Log a daily activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateActivityInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+
+  /activities/{id}:
+    patch:
+      operationId: updateActivity
+      tags: [activities]
+      summary: Update an activity entry
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateActivityInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+    delete:
+      operationId: deleteActivity
+      tags: [activities]
+      summary: Delete an activity entry
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +439,317 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    IssuePriority:
+      type: string
+      enum: [critical, high, medium, low]
+
+    IssueStatus:
+      type: string
+      enum: [open, in_progress, blocked, resolved]
+
+    ProjectStatus:
+      type: string
+      enum: [active, on_hold, completed]
+
+    ActivityCategory:
+      type: string
+      enum: [client_call, code_review, planning, one_on_one, support, deployment, documentation, other]
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        client:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          $ref: "#/components/schemas/ProjectStatus"
+        color:
+          type: string
+          description: Hex color or token identifier for visual differentiation
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, client, description, status, color, createdAt, updatedAt]
+
+    CreateProjectInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        client:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        status:
+          $ref: "#/components/schemas/ProjectStatus"
+        color:
+          type: string
+      required: [name, client]
+
+    UpdateProjectInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        client:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        status:
+          $ref: "#/components/schemas/ProjectStatus"
+        color:
+          type: string
+
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+        email:
+          type: ["string", "null"]
+        avatarColor:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, role, email, avatarColor, createdAt]
+
+    CreateMemberInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          minLength: 1
+        email:
+          type: ["string", "null"]
+        avatarColor:
+          type: string
+      required: [name, role]
+
+    UpdateMemberInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          minLength: 1
+        email:
+          type: ["string", "null"]
+        avatarColor:
+          type: string
+
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        priority:
+          $ref: "#/components/schemas/IssuePriority"
+        status:
+          $ref: "#/components/schemas/IssueStatus"
+        assigneeId:
+          type: ["integer", "null"]
+        reportedBy:
+          type: ["string", "null"]
+          description: Free-text client or stakeholder name
+        dueDate:
+          type: ["string", "null"]
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, projectId, title, description, priority, status, assigneeId, reportedBy, dueDate, createdAt, updatedAt]
+
+    CreateIssueInput:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        priority:
+          $ref: "#/components/schemas/IssuePriority"
+        status:
+          $ref: "#/components/schemas/IssueStatus"
+        assigneeId:
+          type: ["integer", "null"]
+        reportedBy:
+          type: ["string", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date
+      required: [projectId, title, priority]
+
+    UpdateIssueInput:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        priority:
+          $ref: "#/components/schemas/IssuePriority"
+        status:
+          $ref: "#/components/schemas/IssueStatus"
+        assigneeId:
+          type: ["integer", "null"]
+        reportedBy:
+          type: ["string", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date
+
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: ["integer", "null"]
+        category:
+          $ref: "#/components/schemas/ActivityCategory"
+        title:
+          type: string
+        notes:
+          type: ["string", "null"]
+        durationMinutes:
+          type: ["integer", "null"]
+        activityDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, projectId, category, title, notes, durationMinutes, activityDate, createdAt]
+
+    CreateActivityInput:
+      type: object
+      properties:
+        projectId:
+          type: ["integer", "null"]
+        category:
+          $ref: "#/components/schemas/ActivityCategory"
+        title:
+          type: string
+          minLength: 1
+        notes:
+          type: ["string", "null"]
+        durationMinutes:
+          type: ["integer", "null"]
+        activityDate:
+          type: string
+          format: date
+      required: [category, title, activityDate]
+
+    UpdateActivityInput:
+      type: object
+      properties:
+        projectId:
+          type: ["integer", "null"]
+        category:
+          $ref: "#/components/schemas/ActivityCategory"
+        title:
+          type: string
+          minLength: 1
+        notes:
+          type: ["string", "null"]
+        durationMinutes:
+          type: ["integer", "null"]
+        activityDate:
+          type: string
+          format: date
+
+    DashboardSummary:
+      type: object
+      properties:
+        activeProjects:
+          type: integer
+        totalProjects:
+          type: integer
+        teamSize:
+          type: integer
+        openIssues:
+          type: integer
+        criticalIssues:
+          type: integer
+        resolvedThisWeek:
+          type: integer
+        activitiesToday:
+          type: integer
+        minutesLoggedThisWeek:
+          type: integer
+      required:
+        - activeProjects
+        - totalProjects
+        - teamSize
+        - openIssues
+        - criticalIssues
+        - resolvedThisWeek
+        - activitiesToday
+        - minutesLoggedThisWeek
+
+    PriorityBucket:
+      type: object
+      properties:
+        priority:
+          $ref: "#/components/schemas/IssuePriority"
+        count:
+          type: integer
+      required: [priority, count]
+
+    ProjectHealth:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        name:
+          type: string
+        client:
+          type: string
+        color:
+          type: string
+        openIssues:
+          type: integer
+        criticalIssues:
+          type: integer
+        resolvedIssues:
+          type: integer
+      required: [projectId, name, client, color, openIssues, criticalIssues, resolvedIssues]

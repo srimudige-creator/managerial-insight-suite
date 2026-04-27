@@ -54,6 +54,89 @@ export const GetProjectHealthResponseItem = zod.object({
 export const GetProjectHealthResponse = zod.array(GetProjectHealthResponseItem);
 
 /**
+ * @summary Aggregated activity and resolved-issue summary for the past 7 days, grouped by project
+ */
+export const GetWeeklySummaryQueryParams = zod.object({
+  endDate: zod
+    .date()
+    .optional()
+    .describe("Inclusive end date for the 7-day window (defaults to today)"),
+});
+
+export const GetWeeklySummaryResponse = zod.object({
+  weekStart: zod.coerce.date(),
+  weekEnd: zod.coerce.date(),
+  totalActivities: zod.number(),
+  totalMinutes: zod.number(),
+  resolvedIssuesCount: zod.number(),
+  outstandingCriticalCount: zod.number(),
+  categoryBreakdown: zod.array(
+    zod.object({
+      category: zod.enum([
+        "client_call",
+        "code_review",
+        "planning",
+        "one_on_one",
+        "support",
+        "deployment",
+        "documentation",
+        "other",
+      ]),
+      count: zod.number(),
+      minutes: zod.number(),
+    }),
+  ),
+  projectBreakdown: zod.array(
+    zod.object({
+      projectId: zod.number().nullish(),
+      projectName: zod.string(),
+      projectColor: zod.string().nullish(),
+      client: zod.string().nullish(),
+      totalMinutes: zod.number(),
+      activities: zod.array(
+        zod.object({
+          id: zod.number(),
+          projectId: zod.number().nullable(),
+          category: zod.enum([
+            "client_call",
+            "code_review",
+            "planning",
+            "one_on_one",
+            "support",
+            "deployment",
+            "documentation",
+            "other",
+          ]),
+          title: zod.string(),
+          notes: zod.string().nullable(),
+          durationMinutes: zod.number().nullable(),
+          activityDate: zod.coerce.date(),
+          createdAt: zod.coerce.date(),
+        }),
+      ),
+      resolvedIssues: zod.array(
+        zod.object({
+          id: zod.number(),
+          projectId: zod.number(),
+          title: zod.string(),
+          description: zod.string().nullable(),
+          priority: zod.enum(["critical", "high", "medium", "low"]),
+          status: zod.enum(["open", "in_progress", "blocked", "resolved"]),
+          assigneeId: zod.number().nullable(),
+          reportedBy: zod
+            .string()
+            .nullable()
+            .describe("Free-text client or stakeholder name"),
+          dueDate: zod.coerce.date().nullable(),
+          createdAt: zod.coerce.date(),
+          updatedAt: zod.coerce.date(),
+        }),
+      ),
+    }),
+  ),
+});
+
+/**
  * @summary Latest manager activities across all projects
  */
 export const getRecentActivitiesQueryLimitDefault = 10;

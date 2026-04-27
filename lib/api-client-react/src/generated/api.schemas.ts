@@ -233,6 +233,40 @@ export interface ProjectHealth {
   resolvedIssues: number;
 }
 
+export interface WeeklySummaryCategory {
+  category: ActivityCategory;
+  count: number;
+  minutes: number;
+}
+
+export interface WeeklySummaryProject {
+  projectId?: number | null;
+  projectName: string;
+  projectColor?: string | null;
+  client?: string | null;
+  totalMinutes: number;
+  activities: Activity[];
+  resolvedIssues: Issue[];
+}
+
+export interface WeeklySummary {
+  weekStart: string;
+  weekEnd: string;
+  totalActivities: number;
+  totalMinutes: number;
+  resolvedIssuesCount: number;
+  outstandingCriticalCount: number;
+  categoryBreakdown: WeeklySummaryCategory[];
+  projectBreakdown: WeeklySummaryProject[];
+}
+
+export type GetWeeklySummaryParams = {
+  /**
+   * Inclusive end date for the 7-day window (defaults to today)
+   */
+  endDate?: string;
+};
+
 export type GetRecentActivitiesParams = {
   /**
    * @minimum 1

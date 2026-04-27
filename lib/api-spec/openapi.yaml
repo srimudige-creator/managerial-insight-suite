@@ -71,6 +71,26 @@ paths:
                 items:
                   $ref: "#/components/schemas/ProjectHealth"
 
+  /dashboard/weekly-summary:
+    get:
+      operationId: getWeeklySummary
+      tags: [dashboard]
+      summary: Aggregated activity and resolved-issue summary for the past 7 days, grouped by project
+      parameters:
+        - in: query
+          name: endDate
+          description: Inclusive end date for the 7-day window (defaults to today)
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklySummary"
+
   /dashboard/recent-activities:
     get:
       operationId: getRecentActivities
@@ -753,3 +773,75 @@ components:
         resolvedIssues:
           type: integer
       required: [projectId, name, client, color, openIssues, criticalIssues, resolvedIssues]
+
+    WeeklySummaryCategory:
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/ActivityCategory"
+        count:
+          type: integer
+        minutes:
+          type: integer
+      required: [category, count, minutes]
+
+    WeeklySummaryProject:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          nullable: true
+        projectName:
+          type: string
+        projectColor:
+          type: string
+          nullable: true
+        client:
+          type: string
+          nullable: true
+        totalMinutes:
+          type: integer
+        activities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
+        resolvedIssues:
+          type: array
+          items:
+            $ref: "#/components/schemas/Issue"
+      required: [projectName, totalMinutes, activities, resolvedIssues]
+
+    WeeklySummary:
+      type: object
+      properties:
+        weekStart:
+          type: string
+          format: date
+        weekEnd:
+          type: string
+          format: date
+        totalActivities:
+          type: integer
+        totalMinutes:
+          type: integer
+        resolvedIssuesCount:
+          type: integer
+        outstandingCriticalCount:
+          type: integer
+        categoryBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklySummaryCategory"
+        projectBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklySummaryProject"
+      required:
+        - weekStart
+        - weekEnd
+        - totalActivities
+        - totalMinutes
+        - resolvedIssuesCount
+        - outstandingCriticalCount
+        - categoryBreakdown
+        - projectBreakdown

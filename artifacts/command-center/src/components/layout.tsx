@@ -6,6 +6,7 @@ import {
   CheckSquare, 
   Users, 
   Activity,
+  FileText,
   Bell,
   Search,
   Command
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/issues", label: "Issues", icon: CheckSquare },
   { href: "/team", label: "Team", icon: Users },
   { href: "/activities", label: "Activity Log", icon: Activity },
+  { href: "/summary", label: "Weekly Summary", icon: FileText },
 ];
 
 export function Layout({ children }: LayoutProps) {

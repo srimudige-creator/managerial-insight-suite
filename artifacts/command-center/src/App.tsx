@@ -9,6 +9,7 @@ import ProjectDetail from "@/pages/project-detail";
 import Issues from "@/pages/issues";
 import Team from "@/pages/team";
 import Activities from "@/pages/activities";
+import WeeklySummary from "@/pages/weekly-summary";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/issues" component={Issues} />
       <Route path="/team" component={Team} />
       <Route path="/activities" component={Activities} />
+      <Route path="/summary" component={WeeklySummary} />
       <Route component={NotFound} />
     </Switch>
   );

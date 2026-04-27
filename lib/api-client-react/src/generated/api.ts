@@ -24,6 +24,7 @@ import type {
   CreateProjectInput,
   DashboardSummary,
   GetRecentActivitiesParams,
+  GetWeeklySummaryParams,
   HealthStatus,
   Issue,
   ListActivitiesParams,
@@ -36,6 +37,7 @@ import type {
   UpdateIssueInput,
   UpdateMemberInput,
   UpdateProjectInput,
+  WeeklySummary,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -340,6 +342,106 @@ export function useGetProjectHealth<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetProjectHealthQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Aggregated activity and resolved-issue summary for the past 7 days, grouped by project
+ */
+export const getGetWeeklySummaryUrl = (params?: GetWeeklySummaryParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/dashboard/weekly-summary?${stringifiedParams}`
+    : `/api/dashboard/weekly-summary`;
+};
+
+export const getWeeklySummary = async (
+  params?: GetWeeklySummaryParams,
+  options?: RequestInit,
+): Promise<WeeklySummary> => {
+  return customFetch<WeeklySummary>(getGetWeeklySummaryUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetWeeklySummaryQueryKey = (
+  params?: GetWeeklySummaryParams,
+) => {
+  return [
+    `/api/dashboard/weekly-summary`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetWeeklySummaryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWeeklySummary>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetWeeklySummaryParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWeeklySummary>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetWeeklySummaryQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWeeklySummary>>
+  > = ({ signal }) => getWeeklySummary(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWeeklySummary>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWeeklySummaryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWeeklySummary>>
+>;
+export type GetWeeklySummaryQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Aggregated activity and resolved-issue summary for the past 7 days, grouped by project
+ */
+
+export function useGetWeeklySummary<
+  TData = Awaited<ReturnType<typeof getWeeklySummary>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetWeeklySummaryParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWeeklySummary>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWeeklySummaryQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

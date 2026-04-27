@@ -63,7 +63,16 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, CheckCircle2, Trash2, Calendar, Flame, AlertCircle, Activity as ActivityIcon } from "lucide-react";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
-const STATUSES = ["open", "in_progress", "blocked", "resolved"] as const;
+const STATUSES = ["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"] as const;
+const DONE_STATUSES = new Set(["resolved", "raised_cr_closed"]);
+const STATUS_LABELS: Record<string, string> = {
+  l2: "L2",
+  l3: "L3",
+  wfc: "WFC",
+  resolved: "Resolved",
+  yet_to_pick: "Yet to pick",
+  raised_cr_closed: "Raised a CR and closed",
+};
 
 const PRIORITY_STYLES: Record<string, string> = {
   critical: "bg-destructive/15 text-destructive border-destructive/30",
@@ -84,7 +93,7 @@ const issueSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(["critical", "high", "medium", "low"]),
-  status: z.enum(["open", "in_progress", "blocked", "resolved"]),
+  status: z.enum(["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"]),
   assigneeId: z.string().optional(),
   reportedBy: z.string().optional(),
   dueDate: z.string().optional(),
@@ -128,7 +137,7 @@ export default function Issues() {
       title: "",
       description: "",
       priority: "medium",
-      status: "open",
+      status: "yet_to_pick",
       assigneeId: "unassigned",
       reportedBy: "",
       dueDate: "",
@@ -207,7 +216,7 @@ export default function Issues() {
   };
 
   const visibleIssues = (issues ?? []).filter((iss) => {
-    if (statusFilter === "open_only") return iss.status !== "resolved";
+    if (statusFilter === "open_only") return !DONE_STATUSES.has(iss.status);
     return true;
   });
 
@@ -222,8 +231,10 @@ export default function Issues() {
   }
   for (const k of Object.keys(grouped)) {
     grouped[k]!.sort((a, b) => {
-      if (a.status === "resolved" && b.status !== "resolved") return 1;
-      if (b.status === "resolved" && a.status !== "resolved") return -1;
+      const aDone = DONE_STATUSES.has(a.status);
+      const bDone = DONE_STATUSES.has(b.status);
+      if (aDone && !bDone) return 1;
+      if (bDone && !aDone) return -1;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }
@@ -344,7 +355,7 @@ export default function Issues() {
                             <SelectContent>
                               {STATUSES.map((s) => (
                                 <SelectItem key={s} value={s} className="capitalize">
-                                  {s.replace("_", " ")}
+                                  {STATUS_LABELS[s]}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -425,7 +436,7 @@ export default function Issues() {
                 <SelectItem value="all">All statuses</SelectItem>
                 {STATUSES.map((s) => (
                   <SelectItem key={s} value={s} className="capitalize">
-                    {s.replace("_", " ")}
+                    {STATUS_LABELS[s]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -507,7 +518,7 @@ export default function Issues() {
                       return (
                         <Card
                           key={iss.id}
-                          className={`p-4 border-border/50 bg-card/50 hover:bg-card transition-colors ${iss.status === "resolved" ? "opacity-60" : ""}`}
+                          className={`p-4 border-border/50 bg-card/50 hover:bg-card transition-colors ${DONE_STATUSES.has(iss.status) ? "opacity-60" : ""}`}
                         >
                           <div className="flex items-start gap-4 flex-wrap">
                             <div className="flex-1 min-w-[260px]">
@@ -588,7 +599,7 @@ export default function Issues() {
                                 <SelectContent>
                                   {STATUSES.map((s) => (
                                     <SelectItem key={s} value={s} className="capitalize">
-                                      {s.replace("_", " ")}
+                                      {STATUS_LABELS[s]}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>

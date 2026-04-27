@@ -121,7 +121,14 @@ export const GetWeeklySummaryResponse = zod.object({
           title: zod.string(),
           description: zod.string().nullable(),
           priority: zod.enum(["critical", "high", "medium", "low"]),
-          status: zod.enum(["open", "in_progress", "blocked", "resolved"]),
+          status: zod.enum([
+            "l2",
+            "l3",
+            "wfc",
+            "resolved",
+            "yet_to_pick",
+            "raised_cr_closed",
+          ]),
           assigneeId: zod.number().nullable(),
           reportedBy: zod
             .string()
@@ -316,7 +323,9 @@ export const DeleteMemberParams = zod.object({
  */
 export const ListIssuesQueryParams = zod.object({
   projectId: zod.coerce.number().optional(),
-  status: zod.enum(["open", "in_progress", "blocked", "resolved"]).optional(),
+  status: zod
+    .enum(["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"])
+    .optional(),
   priority: zod.enum(["critical", "high", "medium", "low"]).optional(),
 });
 
@@ -326,7 +335,14 @@ export const ListIssuesResponseItem = zod.object({
   title: zod.string(),
   description: zod.string().nullable(),
   priority: zod.enum(["critical", "high", "medium", "low"]),
-  status: zod.enum(["open", "in_progress", "blocked", "resolved"]),
+  status: zod.enum([
+    "l2",
+    "l3",
+    "wfc",
+    "resolved",
+    "yet_to_pick",
+    "raised_cr_closed",
+  ]),
   assigneeId: zod.number().nullable(),
   reportedBy: zod
     .string()
@@ -347,7 +363,9 @@ export const CreateIssueBody = zod.object({
   title: zod.string().min(1),
   description: zod.string().nullish(),
   priority: zod.enum(["critical", "high", "medium", "low"]),
-  status: zod.enum(["open", "in_progress", "blocked", "resolved"]).optional(),
+  status: zod
+    .enum(["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"])
+    .optional(),
   assigneeId: zod.number().nullish(),
   reportedBy: zod.string().nullish(),
   dueDate: zod.coerce.date().nullish(),
@@ -366,7 +384,14 @@ export const GetIssueResponse = zod.object({
   title: zod.string(),
   description: zod.string().nullable(),
   priority: zod.enum(["critical", "high", "medium", "low"]),
-  status: zod.enum(["open", "in_progress", "blocked", "resolved"]),
+  status: zod.enum([
+    "l2",
+    "l3",
+    "wfc",
+    "resolved",
+    "yet_to_pick",
+    "raised_cr_closed",
+  ]),
   assigneeId: zod.number().nullable(),
   reportedBy: zod
     .string()
@@ -389,7 +414,9 @@ export const UpdateIssueBody = zod.object({
   title: zod.string().min(1).optional(),
   description: zod.string().nullish(),
   priority: zod.enum(["critical", "high", "medium", "low"]).optional(),
-  status: zod.enum(["open", "in_progress", "blocked", "resolved"]).optional(),
+  status: zod
+    .enum(["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"])
+    .optional(),
   assigneeId: zod.number().nullish(),
   reportedBy: zod.string().nullish(),
   dueDate: zod.coerce.date().nullish(),
@@ -401,7 +428,14 @@ export const UpdateIssueResponse = zod.object({
   title: zod.string(),
   description: zod.string().nullable(),
   priority: zod.enum(["critical", "high", "medium", "low"]),
-  status: zod.enum(["open", "in_progress", "blocked", "resolved"]),
+  status: zod.enum([
+    "l2",
+    "l3",
+    "wfc",
+    "resolved",
+    "yet_to_pick",
+    "raised_cr_closed",
+  ]),
   assigneeId: zod.number().nullable(),
   reportedBy: zod
     .string()

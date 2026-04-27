@@ -82,7 +82,16 @@ import {
 } from "lucide-react";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
-const STATUSES = ["open", "in_progress", "blocked", "resolved"] as const;
+const STATUSES = ["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"] as const;
+const DONE_STATUSES = new Set(["resolved", "raised_cr_closed"]);
+const STATUS_LABELS: Record<string, string> = {
+  l2: "L2",
+  l3: "L3",
+  wfc: "WFC",
+  resolved: "Resolved",
+  yet_to_pick: "Yet to pick",
+  raised_cr_closed: "Raised a CR and closed",
+};
 
 const PRIORITY_STYLES: Record<string, string> = {
   critical: "bg-destructive/15 text-destructive border-destructive/30",
@@ -92,10 +101,12 @@ const PRIORITY_STYLES: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  open: "bg-primary/10 text-primary border-primary/30",
-  in_progress: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-  blocked: "bg-destructive/10 text-destructive border-destructive/30",
+  l2: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  l3: "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+  wfc: "bg-amber-500/15 text-amber-400 border-amber-500/30",
   resolved: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  yet_to_pick: "bg-primary/10 text-primary border-primary/30",
+  raised_cr_closed: "bg-purple-500/15 text-purple-400 border-purple-500/30",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -126,7 +137,7 @@ const issueSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(["critical", "high", "medium", "low"]),
-  status: z.enum(["open", "in_progress", "blocked", "resolved"]),
+  status: z.enum(["l2", "l3", "wfc", "resolved", "yet_to_pick", "raised_cr_closed"]),
   assigneeId: z.string().optional(),
   reportedBy: z.string().optional(),
   dueDate: z.string().optional(),
@@ -441,7 +452,7 @@ export default function ProjectDetail() {
                   <SelectItem value="all">All statuses</SelectItem>
                   {STATUSES.map((s) => (
                     <SelectItem key={s} value={s} className="capitalize">
-                      {s.replace("_", " ")}
+                      {STATUS_LABELS[s]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -544,7 +555,7 @@ export default function ProjectDetail() {
                                 <SelectContent>
                                   {STATUSES.map((s) => (
                                     <SelectItem key={s} value={s} className="capitalize">
-                                      {s.replace("_", " ")}
+                                      {STATUS_LABELS[s]}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -692,7 +703,7 @@ export default function ProjectDetail() {
                         <SelectContent>
                           {STATUSES.map((s) => (
                             <SelectItem key={s} value={s} className="capitalize">
-                              {s.replace("_", " ")}
+                              {STATUS_LABELS[s]}
                             </SelectItem>
                           ))}
                         </SelectContent>

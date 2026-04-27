@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { sql, eq, ne, and, gte, lte, desc } from "drizzle-orm";
+import { sql, eq, and, gte, lte, desc, inArray, notInArray } from "drizzle-orm";
 import {
   db,
   projectsTable,
@@ -15,6 +15,8 @@ import {
   GetRecentActivitiesResponse,
   GetWeeklySummaryResponse,
 } from "@workspace/api-zod";
+
+const DONE_STATUSES = ["resolved", "raised_cr_closed"] as const;
 
 const router: IRouter = Router();
 
@@ -37,9 +39,9 @@ router.get("/dashboard/summary", async (_req, res): Promise<void> => {
 
   const [{ openIssues, criticalIssues, resolvedThisWeek }] = await db
     .select({
-      openIssues: sql<number>`cast(count(*) filter (where ${issuesTable.status} <> 'resolved') as int)`,
-      criticalIssues: sql<number>`cast(count(*) filter (where ${issuesTable.priority} = 'critical' and ${issuesTable.status} <> 'resolved') as int)`,
-      resolvedThisWeek: sql<number>`cast(count(*) filter (where ${issuesTable.status} = 'resolved' and ${issuesTable.updatedAt} >= ${weekAgo.toISOString()}) as int)`,
+      openIssues: sql<number>`cast(count(*) filter (where ${issuesTable.status} not in ('resolved','raised_cr_closed')) as int)`,
+      criticalIssues: sql<number>`cast(count(*) filter (where ${issuesTable.priority} = 'critical' and ${issuesTable.status} not in ('resolved','raised_cr_closed')) as int)`,
+      resolvedThisWeek: sql<number>`cast(count(*) filter (where ${issuesTable.status} in ('resolved','raised_cr_closed') and ${issuesTable.updatedAt} >= ${weekAgo.toISOString()}) as int)`,
     })
     .from(issuesTable);
 
@@ -71,7 +73,7 @@ router.get("/dashboard/issue-priority-breakdown", async (_req, res): Promise<voi
       count: sql<number>`cast(count(*) as int)`,
     })
     .from(issuesTable)
-    .where(ne(issuesTable.status, "resolved"))
+    .where(notInArray(issuesTable.status, DONE_STATUSES as unknown as string[]))
     .groupBy(issuesTable.priority);
 
   const order = ["critical", "high", "medium", "low"] as const;
@@ -90,9 +92,9 @@ router.get("/dashboard/project-health", async (_req, res): Promise<void> => {
       name: projectsTable.name,
       client: projectsTable.client,
       color: projectsTable.color,
-      openIssues: sql<number>`cast(count(${issuesTable.id}) filter (where ${issuesTable.status} <> 'resolved') as int)`,
-      criticalIssues: sql<number>`cast(count(${issuesTable.id}) filter (where ${issuesTable.priority} = 'critical' and ${issuesTable.status} <> 'resolved') as int)`,
-      resolvedIssues: sql<number>`cast(count(${issuesTable.id}) filter (where ${issuesTable.status} = 'resolved') as int)`,
+      openIssues: sql<number>`cast(count(${issuesTable.id}) filter (where ${issuesTable.status} not in ('resolved','raised_cr_closed')) as int)`,
+      criticalIssues: sql<number>`cast(count(${issuesTable.id}) filter (where ${issuesTable.priority} = 'critical' and ${issuesTable.status} not in ('resolved','raised_cr_closed')) as int)`,
+      resolvedIssues: sql<number>`cast(count(${issuesTable.id}) filter (where ${issuesTable.status} in ('resolved','raised_cr_closed')) as int)`,
     })
     .from(projectsTable)
     .leftJoin(issuesTable, eq(issuesTable.projectId, projectsTable.id))
@@ -128,7 +130,7 @@ router.get("/dashboard/weekly-summary", async (req, res): Promise<void> => {
     .from(issuesTable)
     .where(
       and(
-        eq(issuesTable.status, "resolved"),
+        inArray(issuesTable.status, DONE_STATUSES as unknown as string[]),
         gte(issuesTable.updatedAt, new Date(startDate.getTime())),
       ),
     )
@@ -142,7 +144,7 @@ router.get("/dashboard/weekly-summary", async (req, res): Promise<void> => {
     .where(
       and(
         eq(issuesTable.priority, "critical"),
-        ne(issuesTable.status, "resolved"),
+        notInArray(issuesTable.status, DONE_STATUSES as unknown as string[]),
       ),
     );
 

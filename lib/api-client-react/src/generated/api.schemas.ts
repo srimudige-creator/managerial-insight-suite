@@ -21,10 +21,12 @@ export const IssuePriority = {
 export type IssueStatus = (typeof IssueStatus)[keyof typeof IssueStatus];
 
 export const IssueStatus = {
-  open: "open",
-  in_progress: "in_progress",
-  blocked: "blocked",
+  l2: "l2",
+  l3: "l3",
+  wfc: "wfc",
   resolved: "resolved",
+  yet_to_pick: "yet_to_pick",
+  raised_cr_closed: "raised_cr_closed",
 } as const;
 
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus];

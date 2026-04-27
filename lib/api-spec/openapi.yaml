@@ -467,7 +467,7 @@ components:
 
     IssueStatus:
       type: string
-      enum: [open, in_progress, blocked, resolved]
+      enum: [l2, l3, wfc, resolved, yet_to_pick, raised_cr_closed]
 
     ProjectStatus:
       type: string

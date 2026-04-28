@@ -61,6 +61,7 @@ import {
   Pencil,
   Trash2,
   X,
+  Copy,
 } from "lucide-react";
 
 const actionItemSchema = z.object({
@@ -288,6 +289,61 @@ export default function Meetings() {
   );
 }
 
+function buildPlainText(
+  meeting: Meeting,
+  dateTimeLabel: string,
+  projectName?: string,
+  projectClient?: string,
+): string {
+  const lines: string[] = [];
+  lines.push("Meeting Action Summary");
+  lines.push("======================");
+  lines.push("");
+  lines.push(`Title       : ${meeting.title}`);
+  if (projectName) {
+    lines.push(
+      `Project     : ${projectName}${projectClient ? ` (${projectClient})` : ""}`,
+    );
+  }
+  lines.push(`Date & Time : ${dateTimeLabel}`);
+  lines.push(`Location    : ${meeting.location || "-"}`);
+  if (meeting.clientParticipants || meeting.internalParticipants) {
+    const parts: string[] = [];
+    if (meeting.clientParticipants) parts.push(meeting.clientParticipants);
+    if (meeting.internalParticipants) parts.push(meeting.internalParticipants);
+    parts.forEach((p, i) => {
+      lines.push(i === 0 ? `Participants: ${p}` : `              ${p}`);
+    });
+  }
+  lines.push("");
+  lines.push("Action Items");
+  lines.push("------------");
+  if (meeting.actionItems.length === 0) {
+    lines.push("(none)");
+  } else {
+    meeting.actionItems.forEach((item, idx) => {
+      lines.push(`${idx + 1}. Description : ${item.description}`);
+      lines.push(`   Action On   : ${item.actionOn || "-"}`);
+      lines.push(`   ETA         : ${item.eta || "-"}`);
+      lines.push(`   Remarks     : ${item.remarks || "-"}`);
+      lines.push("");
+    });
+  }
+  if (meeting.agenda) {
+    lines.push("Agenda");
+    lines.push("------");
+    lines.push(meeting.agenda);
+    lines.push("");
+  }
+  if (meeting.discussion) {
+    lines.push("Discussion notes");
+    lines.push("----------------");
+    lines.push(meeting.discussion);
+    lines.push("");
+  }
+  return lines.join("\n").trimEnd();
+}
+
 function MeetingSummaryCard({
   meeting,
   projectName,
@@ -301,10 +357,21 @@ function MeetingSummaryCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { toast } = useToast();
   const dateLabel = format(parseISO(meeting.meetingDate.slice(0, 10)), "d-MMM-yyyy");
   const dateTimeLabel = meeting.meetingTime
     ? `${dateLabel} ${meeting.meetingTime}`
     : dateLabel;
+
+  const handleCopy = async () => {
+    const text = buildPlainText(meeting, dateTimeLabel, projectName, projectClient);
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copied to clipboard" });
+    } catch {
+      toast({ title: "Copy failed", variant: "destructive" });
+    }
+  };
 
   return (
     <Card className="overflow-hidden border-border/60 bg-card/70 group">
@@ -318,8 +385,21 @@ function MeetingSummaryCard({
             </Badge>
           )}
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
+        <div className="flex gap-1 items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            onClick={handleCopy}
+          >
+            <Copy className="w-3 h-3 mr-1.5" /> Copy as text
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={onEdit}
+          >
             <Pencil className="w-3.5 h-3.5" />
           </Button>
           <AlertDialog>
@@ -327,7 +407,7 @@ function MeetingSummaryCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>

@@ -211,8 +211,8 @@ export default function Projects() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects?.map(project => {
-              const projectHealth = health?.find(h => h.projectId === project.id);
+            {(Array.isArray(projects) ? projects : []).map(project => {
+              const projectHealth = (Array.isArray(health) ? health : []).find(h => h.projectId === project.id);
               
               return (
                 <Link key={project.id} href={`/projects/${project.id}`}>

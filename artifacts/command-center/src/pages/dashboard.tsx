@@ -79,7 +79,7 @@ export default function Dashboard() {
                     <Skeleton className="h-16 w-full rounded-md" />
                     <Skeleton className="h-16 w-full rounded-md" />
                   </div>
-                ) : projectHealth?.map(ph => (
+                ) : (Array.isArray(projectHealth) ? projectHealth : []).map(ph => (
                   <div key={ph.projectId} className="flex items-center justify-between p-4 rounded-lg bg-background border border-border/50 hover:border-border transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ph.color }} />
@@ -112,7 +112,7 @@ export default function Dashboard() {
                <div className="space-y-3">
                   {isLoadingBreakdown ? (
                     <Skeleton className="h-32 w-full" />
-                  ) : priorityBreakdown?.map(pb => (
+                  ) : (Array.isArray(priorityBreakdown) ? priorityBreakdown : []).map(pb => (
                     <div key={pb.priority} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Badge variant={pb.priority === 'critical' ? 'destructive' : 'secondary'} className="capitalize text-xs">
@@ -134,7 +134,7 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {isLoadingActivities ? (
                   <Skeleton className="h-40 w-full" />
-                ) : recentActivities?.map(act => (
+                ) : (Array.isArray(recentActivities) ? recentActivities : []).map(act => (
                   <div key={act.id} className="flex gap-3">
                     <div className="mt-0.5">
                       <ActivityIcon className="w-4 h-4 text-muted-foreground" />

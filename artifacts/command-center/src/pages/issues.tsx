@@ -280,7 +280,7 @@ export default function Issues() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {projects?.map((p) => (
+                            {(Array.isArray(projects) ? projects : []).map((p) => (
                               <SelectItem key={p.id} value={String(p.id)}>
                                 {p.name}
                               </SelectItem>
@@ -379,7 +379,7 @@ export default function Issues() {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="unassigned">Unassigned</SelectItem>
-                              {members?.map((m) => (
+                              {(Array.isArray(members) ? members : []).map((m) => (
                                 <SelectItem key={m.id} value={String(m.id)}>
                                   {m.name}
                                 </SelectItem>
@@ -460,7 +460,7 @@ export default function Issues() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All projects</SelectItem>
-                {projects?.map((p) => (
+                {(Array.isArray(projects) ? projects : []).map((p) => (
                   <SelectItem key={p.id} value={String(p.id)}>
                     {p.name}
                   </SelectItem>
@@ -513,8 +513,8 @@ export default function Issues() {
                   </div>
                   <div className="space-y-2">
                     {list.map((iss) => {
-                      const project = projects?.find((p) => p.id === iss.projectId);
-                      const assignee = members?.find((m) => m.id === iss.assigneeId);
+                      const project = (Array.isArray(projects) ? projects : []).find((p) => p.id === iss.projectId);
+                      const assignee = (Array.isArray(members) ? members : []).find((m) => m.id === iss.assigneeId);
                       return (
                         <Card
                           key={iss.id}

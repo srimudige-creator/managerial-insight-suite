@@ -12,6 +12,7 @@ import {
   useListIssues,
   useListActivities,
   useListMembers,
+  useListMeetings,
   useCreateIssue,
   useUpdateIssue,
   useDeleteIssue,
@@ -79,6 +80,10 @@ import {
   CheckCircle2,
   Activity as ActivityIcon,
   Clock,
+  NotebookPen,
+  ArrowRight,
+  MapPin,
+  ListChecks,
 } from "lucide-react";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
@@ -163,6 +168,8 @@ export default function ProjectDetail() {
   const { data: issues, isLoading: loadingIssues } = useListIssues({ projectId: id });
   const { data: activities } = useListActivities({ projectId: id });
   const { data: members } = useListMembers();
+  const { data: meetings } = useListMeetings({ projectId: id });
+  const latestMeeting = meetings?.[0];
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
@@ -434,6 +441,84 @@ export default function ProjectDetail() {
             </div>
           </Card>
         </div>
+
+        <Card className="p-5 border-border/50 bg-card/50">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-start gap-3 flex-1 min-w-[260px]">
+              <div className="rounded-md p-2 bg-primary/10 text-primary mt-0.5">
+                <NotebookPen className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-sm font-semibold tracking-tight">Latest meeting</h2>
+                  {latestMeeting && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {format(parseISO(latestMeeting.meetingDate.slice(0, 10)), "d MMM yyyy")}
+                      {latestMeeting.meetingTime ? ` · ${latestMeeting.meetingTime}` : ""}
+                    </Badge>
+                  )}
+                </div>
+                {latestMeeting ? (
+                  <>
+                    <p className="text-base font-medium mt-1">{latestMeeting.title}</p>
+                    <div className="flex gap-4 mt-1.5 text-xs text-muted-foreground flex-wrap">
+                      {latestMeeting.location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {latestMeeting.location}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <ListChecks className="w-3 h-3" />
+                        {latestMeeting.actionItems.length} action item
+                        {latestMeeting.actionItems.length === 1 ? "" : "s"}
+                      </span>
+                      {meetings && meetings.length > 1 && (
+                        <span>
+                          {meetings.length} meeting{meetings.length === 1 ? "" : "s"} total
+                        </span>
+                      )}
+                    </div>
+                    {latestMeeting.actionItems.length > 0 && (
+                      <ul className="mt-3 space-y-1 text-xs text-foreground/85 list-disc pl-4">
+                        {latestMeeting.actionItems.slice(0, 3).map((item, idx) => (
+                          <li key={idx} className="line-clamp-1">
+                            <span className="font-medium">{item.description}</span>
+                            {item.actionOn && (
+                              <span className="text-muted-foreground">
+                                {" "}— {item.actionOn}
+                              </span>
+                            )}
+                            {item.eta && (
+                              <span className="text-muted-foreground">
+                                {" "}({item.eta})
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                        {latestMeeting.actionItems.length > 3 && (
+                          <li className="list-none text-muted-foreground italic">
+                            +{latestMeeting.actionItems.length - 3} more
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    No meetings recorded for this project yet.
+                  </p>
+                )}
+              </div>
+            </div>
+            <Link href="/meetings">
+              <Button variant="outline" size="sm">
+                {latestMeeting ? "Open MoM" : "Add MoM"}
+                <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              </Button>
+            </Link>
+          </div>
+        </Card>
 
         <section className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">

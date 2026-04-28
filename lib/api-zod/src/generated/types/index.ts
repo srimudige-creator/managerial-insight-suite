@@ -24,6 +24,7 @@ export * from "./listActivitiesParams";
 export * from "./listIssuesParams";
 export * from "./listMeetingsParams";
 export * from "./meeting";
+export * from "./meetingActionItem";
 export * from "./member";
 export * from "./priorityBucket";
 export * from "./project";

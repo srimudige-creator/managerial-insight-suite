@@ -570,10 +570,20 @@ export const ListMeetingsResponseItem = zod.object({
   projectId: zod.number(),
   title: zod.string(),
   meetingDate: zod.coerce.date(),
-  attendees: zod.string().nullable(),
+  meetingTime: zod.string().nullable(),
+  location: zod.string().nullable(),
+  clientParticipants: zod.string().nullable(),
+  internalParticipants: zod.string().nullable(),
   agenda: zod.string().nullable(),
-  discussion: zod.string(),
-  actionItems: zod.string().nullable(),
+  discussion: zod.string().nullable(),
+  actionItems: zod.array(
+    zod.object({
+      description: zod.string(),
+      actionOn: zod.string(),
+      eta: zod.string(),
+      remarks: zod.string(),
+    }),
+  ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -587,10 +597,22 @@ export const CreateMeetingBody = zod.object({
   projectId: zod.number(),
   title: zod.string().min(1),
   meetingDate: zod.coerce.date(),
-  attendees: zod.string().nullish(),
+  meetingTime: zod.string().nullish(),
+  location: zod.string().nullish(),
+  clientParticipants: zod.string().nullish(),
+  internalParticipants: zod.string().nullish(),
   agenda: zod.string().nullish(),
-  discussion: zod.string().min(1),
-  actionItems: zod.string().nullish(),
+  discussion: zod.string().nullish(),
+  actionItems: zod
+    .array(
+      zod.object({
+        description: zod.string(),
+        actionOn: zod.string(),
+        eta: zod.string(),
+        remarks: zod.string(),
+      }),
+    )
+    .optional(),
 });
 
 /**
@@ -604,10 +626,22 @@ export const UpdateMeetingBody = zod.object({
   projectId: zod.number().optional(),
   title: zod.string().min(1).optional(),
   meetingDate: zod.coerce.date().optional(),
-  attendees: zod.string().nullish(),
+  meetingTime: zod.string().nullish(),
+  location: zod.string().nullish(),
+  clientParticipants: zod.string().nullish(),
+  internalParticipants: zod.string().nullish(),
   agenda: zod.string().nullish(),
-  discussion: zod.string().min(1).optional(),
-  actionItems: zod.string().nullish(),
+  discussion: zod.string().nullish(),
+  actionItems: zod
+    .array(
+      zod.object({
+        description: zod.string(),
+        actionOn: zod.string(),
+        eta: zod.string(),
+        remarks: zod.string(),
+      }),
+    )
+    .optional(),
 });
 
 export const UpdateMeetingResponse = zod.object({
@@ -615,10 +649,20 @@ export const UpdateMeetingResponse = zod.object({
   projectId: zod.number(),
   title: zod.string(),
   meetingDate: zod.coerce.date(),
-  attendees: zod.string().nullable(),
+  meetingTime: zod.string().nullable(),
+  location: zod.string().nullable(),
+  clientParticipants: zod.string().nullable(),
+  internalParticipants: zod.string().nullable(),
   agenda: zod.string().nullable(),
-  discussion: zod.string(),
-  actionItems: zod.string().nullable(),
+  discussion: zod.string().nullable(),
+  actionItems: zod.array(
+    zod.object({
+      description: zod.string(),
+      actionOn: zod.string(),
+      eta: zod.string(),
+      remarks: zod.string(),
+    }),
+  ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });

@@ -169,18 +169,31 @@ export interface UpdateIssueInput {
   dueDate?: string | null;
 }
 
+export interface MeetingActionItem {
+  description: string;
+  actionOn: string;
+  eta: string;
+  remarks: string;
+}
+
 export interface Meeting {
   id: number;
   projectId: number;
   title: string;
   meetingDate: string;
   /** @nullable */
-  attendees: string | null;
+  meetingTime: string | null;
+  /** @nullable */
+  location: string | null;
+  /** @nullable */
+  clientParticipants: string | null;
+  /** @nullable */
+  internalParticipants: string | null;
   /** @nullable */
   agenda: string | null;
-  discussion: string;
   /** @nullable */
-  actionItems: string | null;
+  discussion: string | null;
+  actionItems: MeetingActionItem[];
   createdAt: string;
   updatedAt: string;
 }
@@ -191,13 +204,18 @@ export interface CreateMeetingInput {
   title: string;
   meetingDate: string;
   /** @nullable */
-  attendees?: string | null;
+  meetingTime?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  clientParticipants?: string | null;
+  /** @nullable */
+  internalParticipants?: string | null;
   /** @nullable */
   agenda?: string | null;
-  /** @minLength 1 */
-  discussion: string;
   /** @nullable */
-  actionItems?: string | null;
+  discussion?: string | null;
+  actionItems?: MeetingActionItem[];
 }
 
 export interface UpdateMeetingInput {
@@ -206,13 +224,18 @@ export interface UpdateMeetingInput {
   title?: string;
   meetingDate?: string;
   /** @nullable */
-  attendees?: string | null;
+  meetingTime?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  clientParticipants?: string | null;
+  /** @nullable */
+  internalParticipants?: string | null;
   /** @nullable */
   agenda?: string | null;
-  /** @minLength 1 */
-  discussion?: string;
   /** @nullable */
-  actionItems?: string | null;
+  discussion?: string | null;
+  actionItems?: MeetingActionItem[];
 }
 
 export interface Activity {

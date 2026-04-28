@@ -5,6 +5,7 @@
  * API specification for the Manager Command Center
  * OpenAPI spec version: 0.1.0
  */
+import type { MeetingActionItem } from "./meetingActionItem";
 
 export interface UpdateMeetingInput {
   projectId?: number;
@@ -12,11 +13,16 @@ export interface UpdateMeetingInput {
   title?: string;
   meetingDate?: Date;
   /** @nullable */
-  attendees?: string | null;
+  meetingTime?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  clientParticipants?: string | null;
+  /** @nullable */
+  internalParticipants?: string | null;
   /** @nullable */
   agenda?: string | null;
-  /** @minLength 1 */
-  discussion?: string;
   /** @nullable */
-  actionItems?: string | null;
+  discussion?: string | null;
+  actionItems?: MeetingActionItem[];
 }

@@ -732,6 +732,19 @@ components:
           type: ["string", "null"]
           format: date
 
+    MeetingActionItem:
+      type: object
+      properties:
+        description:
+          type: string
+        actionOn:
+          type: string
+        eta:
+          type: string
+        remarks:
+          type: string
+      required: [description, actionOn, eta, remarks]
+
     Meeting:
       type: object
       properties:
@@ -744,21 +757,29 @@ components:
         meetingDate:
           type: string
           format: date
-        attendees:
+        meetingTime:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        clientParticipants:
+          type: ["string", "null"]
+        internalParticipants:
           type: ["string", "null"]
         agenda:
           type: ["string", "null"]
         discussion:
-          type: string
-        actionItems:
           type: ["string", "null"]
+        actionItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/MeetingActionItem"
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
-      required: [id, projectId, title, meetingDate, attendees, agenda, discussion, actionItems, createdAt, updatedAt]
+      required: [id, projectId, title, meetingDate, meetingTime, location, clientParticipants, internalParticipants, agenda, discussion, actionItems, createdAt, updatedAt]
 
     CreateMeetingInput:
       type: object
@@ -771,16 +792,23 @@ components:
         meetingDate:
           type: string
           format: date
-        attendees:
+        meetingTime:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        clientParticipants:
+          type: ["string", "null"]
+        internalParticipants:
           type: ["string", "null"]
         agenda:
           type: ["string", "null"]
         discussion:
-          type: string
-          minLength: 1
-        actionItems:
           type: ["string", "null"]
-      required: [projectId, title, meetingDate, discussion]
+        actionItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/MeetingActionItem"
+      required: [projectId, title, meetingDate]
 
     UpdateMeetingInput:
       type: object
@@ -793,15 +821,22 @@ components:
         meetingDate:
           type: string
           format: date
-        attendees:
+        meetingTime:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        clientParticipants:
+          type: ["string", "null"]
+        internalParticipants:
           type: ["string", "null"]
         agenda:
           type: ["string", "null"]
         discussion:
-          type: string
-          minLength: 1
-        actionItems:
           type: ["string", "null"]
+        actionItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/MeetingActionItem"
 
     Activity:
       type: object

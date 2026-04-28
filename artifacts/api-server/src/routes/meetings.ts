@@ -43,10 +43,13 @@ router.post("/meetings", async (req, res): Promise<void> => {
       projectId: parsed.data.projectId,
       title: parsed.data.title,
       meetingDate: parsed.data.meetingDate,
-      attendees: parsed.data.attendees ?? null,
+      meetingTime: parsed.data.meetingTime ?? null,
+      location: parsed.data.location ?? null,
+      clientParticipants: parsed.data.clientParticipants ?? null,
+      internalParticipants: parsed.data.internalParticipants ?? null,
       agenda: parsed.data.agenda ?? null,
-      discussion: parsed.data.discussion,
-      actionItems: parsed.data.actionItems ?? null,
+      discussion: parsed.data.discussion ?? null,
+      actionItems: parsed.data.actionItems ?? [],
     })
     .returning();
   res.status(201).json(UpdateMeetingResponse.parse(row));

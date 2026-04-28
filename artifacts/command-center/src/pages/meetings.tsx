@@ -440,7 +440,7 @@ function MeetingSummaryCard({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-7 w-7"
             onClick={onEdit}
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -450,7 +450,7 @@ function MeetingSummaryCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-7 w-7 text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
@@ -541,7 +541,7 @@ function MeetingSummaryCard({
                 Remarks
               </th>
             </tr>
-            {meeting.actionItems.length === 0 ? (
+            {(meeting.actionItems ?? []).length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -551,7 +551,7 @@ function MeetingSummaryCard({
                 </td>
               </tr>
             ) : (
-              meeting.actionItems.map((item, idx) => (
+              (meeting.actionItems ?? []).map((item, idx) => (
                 <tr key={idx}>
                   <td className="px-3 py-2 border border-border/40 text-center align-top">
                     {idx + 1}
@@ -748,7 +748,7 @@ function MeetingFormFields({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <FormLabel className="text-sm">Action items</FormLabel>
+          <label className="text-sm font-medium leading-none">Action items</label>
           <Button
             type="button"
             size="sm"

@@ -452,6 +452,81 @@ paths:
         "204":
           description: Deleted
 
+  /meetings:
+    get:
+      operationId: listMeetings
+      tags: [meetings]
+      summary: List meeting minutes (MoM) entries
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Meeting"
+    post:
+      operationId: createMeeting
+      tags: [meetings]
+      summary: Record a new meeting MoM entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMeetingInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+
+  /meetings/{id}:
+    patch:
+      operationId: updateMeeting
+      tags: [meetings]
+      summary: Update a meeting MoM entry
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMeetingInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Meeting"
+    delete:
+      operationId: deleteMeeting
+      tags: [meetings]
+      summary: Delete a meeting MoM entry
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -656,6 +731,77 @@ components:
         dueDate:
           type: ["string", "null"]
           format: date
+
+    Meeting:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        title:
+          type: string
+        meetingDate:
+          type: string
+          format: date
+        attendees:
+          type: ["string", "null"]
+        agenda:
+          type: ["string", "null"]
+        discussion:
+          type: string
+        actionItems:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, projectId, title, meetingDate, attendees, agenda, discussion, actionItems, createdAt, updatedAt]
+
+    CreateMeetingInput:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        meetingDate:
+          type: string
+          format: date
+        attendees:
+          type: ["string", "null"]
+        agenda:
+          type: ["string", "null"]
+        discussion:
+          type: string
+          minLength: 1
+        actionItems:
+          type: ["string", "null"]
+      required: [projectId, title, meetingDate, discussion]
+
+    UpdateMeetingInput:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        meetingDate:
+          type: string
+          format: date
+        attendees:
+          type: ["string", "null"]
+        agenda:
+          type: ["string", "null"]
+        discussion:
+          type: string
+          minLength: 1
+        actionItems:
+          type: ["string", "null"]
 
     Activity:
       type: object

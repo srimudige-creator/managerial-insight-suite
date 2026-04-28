@@ -557,3 +557,75 @@ export const UpdateActivityResponse = zod.object({
 export const DeleteActivityParams = zod.object({
   id: zod.coerce.number(),
 });
+
+/**
+ * @summary List meeting minutes (MoM) entries
+ */
+export const ListMeetingsQueryParams = zod.object({
+  projectId: zod.coerce.number().optional(),
+});
+
+export const ListMeetingsResponseItem = zod.object({
+  id: zod.number(),
+  projectId: zod.number(),
+  title: zod.string(),
+  meetingDate: zod.coerce.date(),
+  attendees: zod.string().nullable(),
+  agenda: zod.string().nullable(),
+  discussion: zod.string(),
+  actionItems: zod.string().nullable(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListMeetingsResponse = zod.array(ListMeetingsResponseItem);
+
+/**
+ * @summary Record a new meeting MoM entry
+ */
+
+export const CreateMeetingBody = zod.object({
+  projectId: zod.number(),
+  title: zod.string().min(1),
+  meetingDate: zod.coerce.date(),
+  attendees: zod.string().nullish(),
+  agenda: zod.string().nullish(),
+  discussion: zod.string().min(1),
+  actionItems: zod.string().nullish(),
+});
+
+/**
+ * @summary Update a meeting MoM entry
+ */
+export const UpdateMeetingParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateMeetingBody = zod.object({
+  projectId: zod.number().optional(),
+  title: zod.string().min(1).optional(),
+  meetingDate: zod.coerce.date().optional(),
+  attendees: zod.string().nullish(),
+  agenda: zod.string().nullish(),
+  discussion: zod.string().min(1).optional(),
+  actionItems: zod.string().nullish(),
+});
+
+export const UpdateMeetingResponse = zod.object({
+  id: zod.number(),
+  projectId: zod.number(),
+  title: zod.string(),
+  meetingDate: zod.coerce.date(),
+  attendees: zod.string().nullable(),
+  agenda: zod.string().nullable(),
+  discussion: zod.string(),
+  actionItems: zod.string().nullable(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a meeting MoM entry
+ */
+export const DeleteMeetingParams = zod.object({
+  id: zod.coerce.number(),
+});

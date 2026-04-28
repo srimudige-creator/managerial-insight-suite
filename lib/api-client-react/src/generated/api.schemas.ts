@@ -169,6 +169,52 @@ export interface UpdateIssueInput {
   dueDate?: string | null;
 }
 
+export interface Meeting {
+  id: number;
+  projectId: number;
+  title: string;
+  meetingDate: string;
+  /** @nullable */
+  attendees: string | null;
+  /** @nullable */
+  agenda: string | null;
+  discussion: string;
+  /** @nullable */
+  actionItems: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateMeetingInput {
+  projectId: number;
+  /** @minLength 1 */
+  title: string;
+  meetingDate: string;
+  /** @nullable */
+  attendees?: string | null;
+  /** @nullable */
+  agenda?: string | null;
+  /** @minLength 1 */
+  discussion: string;
+  /** @nullable */
+  actionItems?: string | null;
+}
+
+export interface UpdateMeetingInput {
+  projectId?: number;
+  /** @minLength 1 */
+  title?: string;
+  meetingDate?: string;
+  /** @nullable */
+  attendees?: string | null;
+  /** @nullable */
+  agenda?: string | null;
+  /** @minLength 1 */
+  discussion?: string;
+  /** @nullable */
+  actionItems?: string | null;
+}
+
 export interface Activity {
   id: number;
   /** @nullable */
@@ -289,4 +335,8 @@ export type ListActivitiesParams = {
    * Filter activities to a specific YYYY-MM-DD date
    */
   date?: string;
+};
+
+export type ListMeetingsParams = {
+  projectId?: number;
 };

@@ -7,6 +7,7 @@ import {
   Users, 
   Activity,
   FileText,
+  NotebookPen,
   Bell,
   Search,
   Command
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/issues", label: "Issues", icon: CheckSquare },
   { href: "/team", label: "Team", icon: Users },
   { href: "/activities", label: "Activity Log", icon: Activity },
+  { href: "/meetings", label: "MoM", icon: NotebookPen },
   { href: "/summary", label: "Weekly Summary", icon: FileText },
 ];
 

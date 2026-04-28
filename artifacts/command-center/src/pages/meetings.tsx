@@ -62,6 +62,7 @@ import {
   Trash2,
   X,
   Copy,
+  Search,
 } from "lucide-react";
 
 const actionItemSchema = z.object({
@@ -126,6 +127,7 @@ export default function Meetings() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<Meeting | null>(null);
   const [projectFilter, setProjectFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -141,10 +143,37 @@ export default function Meetings() {
 
   const filtered = useMemo(() => {
     if (!meetings) return [];
-    if (projectFilter === "all") return meetings;
-    const pid = parseInt(projectFilter, 10);
-    return meetings.filter((m) => m.projectId === pid);
-  }, [meetings, projectFilter]);
+    let list = meetings;
+    if (projectFilter !== "all") {
+      const pid = parseInt(projectFilter, 10);
+      list = list.filter((m) => m.projectId === pid);
+    }
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((m) => {
+        const projectName = projectMap.get(m.projectId)?.name ?? "";
+        const projectClient = projectMap.get(m.projectId)?.client ?? "";
+        const haystacks: string[] = [
+          m.title,
+          projectName,
+          projectClient,
+          m.location ?? "",
+          m.clientParticipants ?? "",
+          m.internalParticipants ?? "",
+          m.agenda ?? "",
+          m.discussion ?? "",
+          ...m.actionItems.flatMap((a) => [
+            a.description,
+            a.actionOn,
+            a.eta,
+            a.remarks,
+          ]),
+        ];
+        return haystacks.some((h) => h.toLowerCase().includes(q));
+      });
+    }
+    return list;
+  }, [meetings, projectFilter, searchQuery, projectMap]);
 
   const createForm = useForm<MeetingFormValues>({
     resolver: zodResolver(meetingSchema),
@@ -223,9 +252,18 @@ export default function Meetings() {
         </div>
 
         <Card className="p-4 border-border/50 bg-card/50 flex items-center gap-3 flex-wrap">
-          <span className="text-xs text-muted-foreground">Filter by project</span>
+          <div className="relative flex-1 min-w-[260px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search title, participants, action items..."
+              className="pl-9 h-9"
+            />
+          </div>
+          <span className="text-xs text-muted-foreground">Project</span>
           <Select value={projectFilter} onValueChange={setProjectFilter}>
-            <SelectTrigger className="h-9 w-[240px]">
+            <SelectTrigger className="h-9 w-[200px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -237,6 +275,11 @@ export default function Meetings() {
               ))}
             </SelectContent>
           </Select>
+          {(searchQuery || projectFilter !== "all") && meetings && (
+            <span className="text-xs text-muted-foreground ml-auto">
+              {filtered.length} of {meetings.length}
+            </span>
+          )}
         </Card>
 
         {isLoading ? (
